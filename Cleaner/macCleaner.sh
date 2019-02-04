@@ -3,14 +3,13 @@
 # Set delimiter to "\n"
 IFS=$'\n'
 
+home=/Users/william
+
 # Directories you want to clean, use space for separation
-dirsToClean=(~/Downloads/)
+dirsToClean=($home/Downloads/)
 
 # Trash folder directory
-trash=~/.Trash
-
-# Cleaning period time, in seconds
-cleanPeriod=12*3600  # 12 hrs
+trash=$home/.Trash
 
 ## Log Module\
 # Log file dir
@@ -26,28 +25,25 @@ cleanPeriod=12*3600  # 12 hrs
 # Initialization
 echo "Directories to be cleaned: ${dirsToClean[@]}"
 
-# Clean the dirs periodically
-while true; do
-    for dir in "${dirsToClean[@]}"; do
-        # Ignore hidden files and directories
-        if `find $dir -mindepth 1 -not -path '*/\.*' | grep -q .`; then
-            # echo "Cleaning $dir at `date`" >> $LOG 2>&1
-            folder=$trash/`basename $dir`-`date +%Y%m%d-%H%M%S`/
-            mkdir $folder
-            for toClean in "$dir"*; do
-                mv $toClean $folder
-                # echo "[`basename $dir`] Cleaned `basename $toClean` at `date`" >> $LOG 2>&1 
-            done
-            # Logfile written
-            logFlag=true
-        fi
-    done
-    sleep $cleanPeriod
-    ## Log zip
-    #let "logCounter+=1"
-    #if [[ $logCounter -ge maxLogCount ]] && $logFlag; then
-    #    gzip "$LOGBase"*[^.gz]
-    #    logCounter=0
-    #    logFlag=false
-    #fi
+# Clean the dirs
+for dir in "${dirsToClean[@]}"; do
+    # Ignore hidden files and directories
+    if `find $dir -mindepth 1 -not -path '*/\.*' | grep -q .`; then
+        echo "Cleaning $dir at `date`"
+        folder=$trash/`basename $dir`-`date +%Y%m%d-%H%M%S`/
+        mkdir $folder
+        for toClean in "$dir"*; do
+            mv $toClean $folder
+            echo "[`basename $dir`] Cleaned `basename $toClean` at `date`"
+        done
+        # Logfile written
+        # logFlag=true
+    fi
 done
+## Log zip
+#let "logCounter+=1"
+#if [[ $logCounter -ge maxLogCount ]] && $logFlag; then
+#    gzip "$LOGBase"*[^.gz]
+#    logCounter=0
+#    logFlag=false
+#fi
